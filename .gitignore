@@ -1,3 +1,9 @@
+# Custom
+.apt_generated
+.apt_generated_tests
+.vscode
+target
+
 # Compiled class file
 *.class
 
