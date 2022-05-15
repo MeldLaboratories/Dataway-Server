@@ -1,6 +1,5 @@
 package ob.dataway.utils.tcp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,12 +16,12 @@ import ob.dataway.utils.tcp.events.OnSocketConnect;
 import ob.dataway.utils.tcp.events.OnSocketDataReceived;
 import ob.dataway.utils.tcp.events.OnSocketDisconnect;
 
-public class TCPConnection {
+public class TcpConnection {
   private Thread socketThread;
 
   // events
-  private List<OnSocketDisconnect> disconnectListeners = new ArrayList<OnSocketDisconnect>();
-  private List<OnSocketDataReceived> dataReceivedListeners = new ArrayList<OnSocketDataReceived>();
+  private List<OnSocketDisconnect> disconnectListeners = new ArrayList<>();
+  private List<OnSocketDataReceived> dataReceivedListeners = new ArrayList<>();
   
   @Getter
   private InputStream inputStream;
@@ -30,62 +29,74 @@ public class TCPConnection {
   @Getter
   private OutputStream outputStream;
   
+  /**
+   * The {@link Socket} instance of this connection.
+   */
   @Getter
   private Socket baseSocket;
 
+  /**
+   * Specifies the amount of in-memory stored bytes.
+   */
   @Getter @Setter
   private int bufferSize = 256;
 
-  public TCPConnection(Socket socket) {
+  /**
+   * Represent a socket connection.
+   * This class normally gets constructed by {@link TcpServer#onSocketConnect(OnSocketConnect)}.
+   * @param socket The base socket.
+   */
+  public TcpConnection(Socket socket) {
     this.baseSocket = socket;
 
     // start the thread
-    this.socketThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          // start reading
-          TCPConnection.this.inputStream = TCPConnection.this.baseSocket.getInputStream();
-          InputStreamReader streamReader = new InputStreamReader(TCPConnection.this.inputStream);
-
-          // prepare output stream
-          TCPConnection.this.outputStream = TCPConnection.this.baseSocket.getOutputStream();
-
-          while (!TCPConnection.this.baseSocket.isClosed()) {
-
-            CharBuffer buffer = CharBuffer.allocate(bufferSize);
-                
-            if (streamReader.read(buffer) == -1) {
-              TCPConnection.this.baseSocket.close();
-              break;
-            }
-
-            byte[] data = new String(buffer.array()).getBytes();
-
-            for (OnSocketDataReceived dataListener : TCPConnection.this.dataReceivedListeners) {
-              dataListener.onDataReceived(data);
-            }
-
-            // close the socket
-            if (!TCPConnection.this.baseSocket.isConnected())
-              TCPConnection.this.baseSocket.close();
-          }
-        }
-        catch (SocketException se) {
-          // do nothing
-        }
-        catch (IOException e) {
-          e.printStackTrace();
-        }
-        
-        // handle disconnect
-        for (OnSocketDisconnect disconnectListener : TCPConnection.this.disconnectListeners) {
-          disconnectListener.onDisconnect();
-        }
-      }
-    });
-
+    this.socketThread = new Thread(TcpConnection.this::executeSocket);
     this.socketThread.start();
+  }
+
+  /**
+   * The main logic for the socket.
+   */
+  private void executeSocket() {
+    try {
+      // start reading
+      TcpConnection.this.inputStream = TcpConnection.this.baseSocket.getInputStream();
+      InputStreamReader streamReader = new InputStreamReader(TcpConnection.this.inputStream);
+
+      // prepare output stream
+      TcpConnection.this.outputStream = TcpConnection.this.baseSocket.getOutputStream();
+
+      while (!TcpConnection.this.baseSocket.isClosed()) {
+
+        CharBuffer buffer = CharBuffer.allocate(bufferSize);
+            
+        if (streamReader.read(buffer) == -1) {
+          TcpConnection.this.baseSocket.close();
+          break;
+        }
+
+        byte[] data = new String(buffer.array()).getBytes();
+
+        for (OnSocketDataReceived dataListener : TcpConnection.this.dataReceivedListeners) {
+          dataListener.onDataReceived(data);
+        }
+
+        // close the socket
+        if (!TcpConnection.this.baseSocket.isConnected())
+          TcpConnection.this.baseSocket.close();
+      }
+    }
+    catch (SocketException se) {
+      // do nothing
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+    
+    // handle disconnect
+    for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
+      disconnectListener.onDisconnect();
+    }
   }
 
   /**
@@ -115,5 +126,4 @@ public class TCPConnection {
     this.outputStream.write(data.getBytes());
   }
 
-  
 }

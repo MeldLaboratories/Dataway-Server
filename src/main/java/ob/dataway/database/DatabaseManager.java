@@ -20,7 +20,7 @@ public class DatabaseManager {
   private Random rnd = new Random();
 
   /**
-   * A manager for the server database. TODO: sex
+   * Simplifies managing the database.
    * @param filePath The path to the database file.
    * @throws SQLException If the database cannot be accessed.
    */
@@ -39,7 +39,7 @@ public class DatabaseManager {
   }
 
   /**
-   * A manager for the server database. TODO: sex
+   * Simplifies managing the database.
    * @param filePath The path to the database file.
    * @throws SQLException If the database cannot be accessed.
    */
@@ -48,7 +48,7 @@ public class DatabaseManager {
   }
 
   /**
-   * This generates a by default 4 character long friend code.
+   * This generates a 4 character long friend code.
    * The friend code contains both numeric and lower case alphabetic characters.
    * @return A friend code.
    */

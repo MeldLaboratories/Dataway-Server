@@ -10,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import ob.dataway.utils.tcp.events.OnSocketConnect;
 
 @Slf4j
-public class TCPServer {
+public class TcpServer {
   private ServerSocket serverSocket;
   private Thread serverThread;
-  private List<TCPConnection> connections = new ArrayList<>();
+  private List<TcpConnection> connections = new ArrayList<>();
 
   private int port;
   private int backlog;
@@ -26,7 +26,7 @@ public class TCPServer {
    * Creates a new multi-threaded TCP server that allows multiple connections.
    * @param port The port to listen on.
    */
-  public TCPServer(int port) throws IOException {
+  public TcpServer(int port) throws IOException {
     this(port, 50, null);
   }
 
@@ -35,7 +35,7 @@ public class TCPServer {
    * @param port The port to listen on.
    * @param backlog The maximum number of connections to allow in the queue.
    */
-  public TCPServer(int port, int backlog) throws IOException {
+  public TcpServer(int port, int backlog) throws IOException {
     this(port, backlog, null);
   }
 
@@ -46,7 +46,7 @@ public class TCPServer {
    * @param bindAddress The address to bind to.
    * @throws IOException
    */
-  public TCPServer(int port, int backlog, InetAddress bindAddress) throws IOException {
+  public TcpServer(int port, int backlog, InetAddress bindAddress) throws IOException {
     this.port = port;
     this.backlog = backlog;
     this.bindAddress = bindAddress;
@@ -58,25 +58,22 @@ public class TCPServer {
       this.serverSocket = new ServerSocket(this.port, this.backlog, this.bindAddress);
 
     // Start the server thread.
-    this.serverThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          while (!serverSocket.isClosed()) {
-            // Accept a new connection.
-            TCPConnection connection = new TCPConnection(TCPServer.this.serverSocket.accept());
-            
-            // Add the connection to the list.
-            TCPServer.this.connections.add(connection);
+    this.serverThread = new Thread(() -> {
+      try {
+        while (!serverSocket.isClosed()) {
+          // Accept a new connection.
+          TcpConnection connection = new TcpConnection(TcpServer.this.serverSocket.accept());
+          
+          // Add the connection to the list.
+          TcpServer.this.connections.add(connection);
 
-            // Fire the connection event.
-            for (OnSocketConnect onSocketConnect : TCPServer.this.onSocketConnectEvents) {
-              onSocketConnect.onConnect(connection);
-            }
+          // Fire the connection event.
+          for (OnSocketConnect onSocketConnect : TcpServer.this.onSocketConnectEvents) {
+            onSocketConnect.onConnect(connection);
           }
-        } catch (IOException e) {
-          log.error("Error accepting connection.", e);
         }
+      } catch (IOException e) {
+        log.error("Error accepting connection.", e);
       }
     });
   }

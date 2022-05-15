@@ -1,7 +1,7 @@
 package ob.dataway.utils.tcp.events;
 
-import ob.dataway.utils.tcp.TCPConnection;
+import ob.dataway.utils.tcp.TcpConnection;
 
 public interface OnSocketConnect {
-  public void onConnect(TCPConnection connection);
+  public void onConnect(TcpConnection connection);
 }
