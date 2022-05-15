@@ -119,11 +119,24 @@ public class TcpConnection {
 
   /**
    * Sends data to the connected client.
+   * <p>
+   * The send data can ether be a string or a byte array.
    * @param data The data to send.
    * @throws IOException If the communication fails.
    */
   public void send(String data) throws IOException {
     this.outputStream.write(data.getBytes());
+  }
+
+  /**
+   * Sends data to the connected client.
+   * <p>
+   * The send data can ether be a string or a byte array.
+   * @param data The data to send.
+   * @throws IOException If the communication fails.
+   */
+  public void send(byte[] data) throws IOException {
+    this.outputStream.write(data);
   }
 
 }
