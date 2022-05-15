@@ -50,7 +50,7 @@ public class TcpConnection {
     this.baseSocket = socket;
 
     // start the thread
-    this.socketThread = new Thread(TcpConnection.this::executeSocket);
+    this.socketThread = new Thread(this::executeSocket);
     this.socketThread.start();
   }
 
