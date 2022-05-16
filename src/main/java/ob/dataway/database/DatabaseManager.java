@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ob.dataway.database.types.User;
 
@@ -16,36 +17,39 @@ public class DatabaseManager {
   
   private Connection connection;
   private Statement statement;
-  private int friendCodeLength = 4;
+  private int friendCodeLength = 4; //TODO: store friendCodeLength in config file
+  private String defaultFilePath = "src/main/java/ob/dataway/database/database.db";
   private Random rnd = new Random();
 
   /**
-   * Simplifies managing the database.
-   * @param filePath The path to the database file.
-   * @throws SQLException If the database cannot be accessed.
+   * The singleton instance of the database manager.
    */
-  public DatabaseManager(String filePath, int friendCodeLength) throws SQLException {
-    this.friendCodeLength = friendCodeLength;
+  @Getter
+  private static DatabaseManager instance = new DatabaseManager();
 
-    // create database connection
-    this.connection = DriverManager.getConnection("jdbc:sqlite:" + filePath);
-    this.statement = this.connection.createStatement();
-    this.statement.setQueryTimeout(30);
-
-    // create tables if they don't exist
-    this.statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (id TEXT UNIQUE PRIMARY KEY, friendID TEXT UNIQUE, online BOOLEAN)");
-
-    log.debug("Loaded database {}", filePath);
-  }
 
   /**
    * Simplifies managing the database.
-   * @param filePath The path to the database file.
-   * @throws SQLException If the database cannot be accessed.
+   * This class is a singleton and gets instantiated at the start of the program.
    */
-  public DatabaseManager(String filePath) throws SQLException {
-    this(filePath, 4);
+  private DatabaseManager() {
+    try {
+      // create database connection
+      this.connection = DriverManager.getConnection("jdbc:sqlite:" + defaultFilePath);
+      this.statement = this.connection.createStatement();
+      this.statement.setQueryTimeout(30);
+
+      // create tables if they don't exist
+      this.statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (id TEXT UNIQUE PRIMARY KEY, friendID TEXT UNIQUE, online BOOLEAN)");
+
+      log.info("Loaded database {}", defaultFilePath);
+    }
+    catch (SQLException e) {
+      log.error("Failed to connect to the database.", e);
+      System.exit(1);
+    }
   }
+
 
   /**
    * This generates a 4 character long friend code.
