@@ -103,7 +103,7 @@ public class TcpConnection {
     catch (IOException e) {
       // handle disconnect
       for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
-        disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, null));
+        disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, e));
       }
     }
   }
