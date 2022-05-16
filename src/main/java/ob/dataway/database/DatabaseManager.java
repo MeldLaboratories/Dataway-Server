@@ -76,13 +76,20 @@ public class DatabaseManager {
    * @return True if the user is logged in, false otherwise.
    * @throws SQLException If the database cannot be accessed.
    */
-  public boolean loginUser(String userID) throws SQLException {
-    User user = this.getUser(userID);
+  public boolean loginUser(String userID) {
+    try {
+      User user = this.getUser(userID);
 
-    // update user online status
-    this.statement.executeUpdate("UPDATE users SET online = 1 WHERE id = '" + userID + "'");
-
-    return user != null;
+      // update user online status
+      this.statement.executeUpdate("UPDATE users SET online = TRUE WHERE id = '" + userID + "'");
+  
+      return user != null;
+    }
+    catch (SQLException e) {
+      log.error("Failed to login user {}.", userID);
+      System.exit(1);
+      return false;
+    }
   }
 
   /**
@@ -90,30 +97,42 @@ public class DatabaseManager {
    * @param userID
    * @throws SQLException
    */
-  public void logoutUser(String userID) throws SQLException {
-    this.statement.executeUpdate("UPDATE users SET online = FALSE WHERE id = '" + userID + "'");
+  public void logoutUser(String userID) {
+    try {
+      this.statement.executeUpdate("UPDATE users SET online = FALSE WHERE id = '" + userID + "'");
+    }
+    catch (SQLException e) {
+      log.error("Failed to logout user {}.", userID);
+      System.exit(1);
+    }
   }
 
   /**
    * Retrieves a user from the database.
    * @param userID The id of the user to retrieve.
    * @return The user if it exists, null otherwise.
-   * @throws SQLException If the database cannot be accessed.
    */
-  public User getUser(String userID) throws SQLException {
-    ResultSet resultSet = this.statement.executeQuery("SELECT * FROM users WHERE id = \"" + userID + "\"");
+  public User getUser(String userID) {
+    try{
+      ResultSet resultSet = this.statement.executeQuery("SELECT * FROM users WHERE id = \"" + userID + "\"");
 
-    if (resultSet.isClosed()) {
+      if (resultSet.isClosed()) {
+        return null;
+      }
+  
+      resultSet.next();
+  
+      return new User(
+        resultSet.getString("id"), 
+        resultSet.getString("friendID"),
+        resultSet.getBoolean("online")
+      );
+    }
+    catch (SQLException e) {
+      log.error("Failed to retrieve user from database.", e);
+      System.exit(1);
       return null;
     }
-
-    resultSet.next();
-
-    return new User(
-      resultSet.getString("id"), 
-      resultSet.getString("friendID"),
-      resultSet.getBoolean("online")
-    );
   }
 
   /**
