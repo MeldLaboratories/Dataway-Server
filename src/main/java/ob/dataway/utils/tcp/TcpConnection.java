@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,8 @@ import lombok.Setter;
 import ob.dataway.utils.tcp.events.OnSocketConnect;
 import ob.dataway.utils.tcp.events.OnSocketDataReceived;
 import ob.dataway.utils.tcp.events.OnSocketDisconnect;
+import ob.dataway.utils.tcp.events.args.OnSocketDataReceivedArgs;
+import ob.dataway.utils.tcp.events.args.OnSocketDisconnectArgs;
 
 public class TcpConnection {
   private Thread socketThread;
@@ -78,24 +79,24 @@ public class TcpConnection {
         byte[] data = new String(buffer.array()).getBytes();
 
         for (OnSocketDataReceived dataListener : TcpConnection.this.dataReceivedListeners) {
-          dataListener.onDataReceived(data);
+          dataListener.onDataReceived(TcpConnection.this, new OnSocketDataReceivedArgs(dataListener, TcpConnection.this.dataReceivedListeners, data));
         }
 
         // close the socket
         if (!TcpConnection.this.baseSocket.isConnected())
           TcpConnection.this.baseSocket.close();
+
+        // handle disconnect
+        for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
+          disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, null));
+        }
       }
     }
-    catch (SocketException se) {
-      // do nothing
-    }
     catch (IOException e) {
-      e.printStackTrace();
-    }
-    
-    // handle disconnect
-    for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
-      disconnectListener.onDisconnect();
+      // handle disconnect
+      for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
+        disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, null));
+      }
     }
   }
 
