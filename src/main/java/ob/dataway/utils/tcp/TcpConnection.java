@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,13 +41,6 @@ public class TcpConnection {
    */
   @Getter @Setter
   private int bufferSize = 256;
-
-  /**
-   * A unique ID used to identify the connection.
-   */
-  @Getter
-  private UUID uuid = UUID.randomUUID();
-
 
   /**
    * Represent a socket connection.
@@ -87,7 +79,7 @@ public class TcpConnection {
         byte[] data = new String(buffer.array()).getBytes();
 
         for (OnSocketDataReceived dataListener : TcpConnection.this.dataReceivedListeners) {
-          dataListener.onDataReceived(TcpConnection.this, new OnSocketDataReceivedArgs(dataListener, TcpConnection.this.dataReceivedListeners, data, TcpConnection.this));
+          dataListener.onDataReceived(TcpConnection.this, new OnSocketDataReceivedArgs(dataListener, TcpConnection.this.dataReceivedListeners, data));
         }
 
         // close the socket
@@ -96,14 +88,14 @@ public class TcpConnection {
 
         // handle disconnect
         for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
-          disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, null, TcpConnection.this));
+          disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, null));
         }
       }
     }
     catch (IOException e) {
       // handle disconnect
       for (OnSocketDisconnect disconnectListener : TcpConnection.this.disconnectListeners) {
-        disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, e, TcpConnection.this));
+        disconnectListener.onDisconnect(TcpConnection.this, new OnSocketDisconnectArgs(disconnectListener, TcpConnection.this.disconnectListeners, null));
       }
     }
   }
