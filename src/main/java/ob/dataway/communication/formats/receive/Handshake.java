@@ -1,5 +1,5 @@
 package ob.dataway.communication.formats.receive;
 
 public class Handshake {
-  public SocketType socketType;
+  public int socketType;
 }
