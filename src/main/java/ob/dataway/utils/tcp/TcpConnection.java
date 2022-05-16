@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +42,13 @@ public class TcpConnection {
    */
   @Getter @Setter
   private int bufferSize = 256;
+
+  /**
+   * A unique ID used to identify the connection.
+   */
+  @Getter
+  private UUID uuid = UUID.randomUUID();
+
 
   /**
    * Represent a socket connection.
