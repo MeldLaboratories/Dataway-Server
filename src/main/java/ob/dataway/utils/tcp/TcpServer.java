@@ -8,6 +8,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import ob.dataway.utils.tcp.events.OnSocketConnect;
+import ob.dataway.utils.tcp.events.args.OnSocketConnectArgs;
 
 @Slf4j
 public class TcpServer {
@@ -69,7 +70,7 @@ public class TcpServer {
 
           // Fire the connection event.
           for (OnSocketConnect onSocketConnect : TcpServer.this.onSocketConnectEvents) {
-            onSocketConnect.onConnect(connection);
+            onSocketConnect.onConnect(TcpServer.this, new OnSocketConnectArgs(onSocketConnect, TcpServer.this.onSocketConnectEvents, connection));
           }
         }
       } catch (IOException e) {
