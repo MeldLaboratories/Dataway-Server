@@ -8,7 +8,7 @@ public class User {
   private final String id;
 
   @Getter
-  private final String friendID;
+  private final String friendCode;
 
   @Getter
   private boolean online;
@@ -16,12 +16,12 @@ public class User {
   /**
    * Represents a user in the database.
    * @param id The id of the user.
-   * @param friendID The friend code of the user.
+   * @param friendCode The friend code of the user.
    * @param online Whether the user is online or not.
    */
-  public User(String id, String friendID, boolean online) {
+  public User(String id, String friendCode, boolean online) {
     this.id = id;
-    this.friendID = friendID;
+    this.friendCode = friendCode;
     this.online = online;
   }
 }
