@@ -1,7 +1,6 @@
 package ob.dataway.communication.formats.receive;
 
-public class TransferRequest {
-  public String userID;
+public class R_TransferRequest {
   public String message;
   public String filename;
   public String receiverFriendCode;

@@ -4,4 +4,5 @@ public class TransferRequestResult {
   public final String type = "TransferRequestResult";
   public int resultCode;
   public String transferID;
+  public String privateTransferID;
 }

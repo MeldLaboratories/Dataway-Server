@@ -1,6 +1,6 @@
 package ob.dataway.communication.formats.send;
 
-public class TransferRequest {
+public class S_TransferRequest {
   public final String type = "TransferRequest";
   public String senderFriendCode;
   public String transferID;
