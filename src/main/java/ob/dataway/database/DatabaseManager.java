@@ -40,7 +40,7 @@ public class DatabaseManager {
       this.statement.setQueryTimeout(30);
 
       // create tables if they don't exist
-      this.statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (id TEXT UNIQUE PRIMARY KEY, friendID TEXT UNIQUE, online BOOLEAN)");
+      this.statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (id TEXT UNIQUE PRIMARY KEY, friendCode TEXT UNIQUE, online BOOLEAN)");
 
       log.info("Loaded database {}", defaultFilePath);
     }
@@ -57,17 +57,17 @@ public class DatabaseManager {
    * @return A friend code.
    */
   private String generateFriendCode() {
-    StringBuilder friendID = new StringBuilder();
+    StringBuilder friendCode = new StringBuilder();
 
     for (int i = 0; i < this.friendCodeLength; i++) {
       int rndInt = rnd.nextInt(2);
       if (rndInt == 0) {
-        friendID.append((char) (rnd.nextInt(26) + 97));
+        friendCode.append((char) (rnd.nextInt(26) + 97));
       } else {
-        friendID.append(rnd.nextInt(10));
+        friendCode.append(rnd.nextInt(10));
       }
     }
-    return friendID.toString();
+    return friendCode.toString();
   }
 
   /**
@@ -124,7 +124,35 @@ public class DatabaseManager {
   
       return new User(
         resultSet.getString("id"), 
-        resultSet.getString("friendID"),
+        resultSet.getString("friendCode"),
+        resultSet.getBoolean("online")
+      );
+    }
+    catch (SQLException e) {
+      log.error("Failed to retrieve user from database.", e);
+      System.exit(1);
+      return null;
+    }
+  }
+
+  /**
+   * Retrieves a user from the database using the friendcode.
+   * @param userFriendCode The id of the user to retrieve.
+   * @return The user if it exists, null otherwise.
+   */
+  public User getUserByFriendCode(String userFriendCode) {
+    try{
+      ResultSet resultSet = this.statement.executeQuery("SELECT * FROM users WHERE friendCode = \"" + userFriendCode + "\"");
+
+      if (resultSet.isClosed()) {
+        return null;
+      }
+  
+      resultSet.next();
+  
+      return new User(
+        resultSet.getString("id"), 
+        resultSet.getString("friendCode"),
         resultSet.getBoolean("online")
       );
     }
@@ -142,15 +170,15 @@ public class DatabaseManager {
    */
   public User addUser() {
     String id = UUID.randomUUID().toString();
-    String friendID = this.generateFriendCode();
+    String friendCode = this.generateFriendCode();
 
     try {
-      this.statement.executeUpdate("INSERT INTO users (id, friendID, online) VALUES (\"" + id + "\", \"" + friendID + "\", TRUE)");
+      this.statement.executeUpdate("INSERT INTO users (id, friendCode, online) VALUES (\"" + id + "\", \"" + friendCode + "\", TRUE)");
     } catch (SQLException e) {
       return this.addUser();
     }
 
-    return new User(id, friendID, true);
+    return new User(id, friendCode, true);
   }
 
 }
