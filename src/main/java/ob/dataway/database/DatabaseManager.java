@@ -18,7 +18,7 @@ public class DatabaseManager {
   private Connection connection;
   private Statement statement;
   private int friendCodeLength = 4; //TODO: store friendCodeLength in config file
-  private String defaultFilePath = "src/main/java/ob/dataway/database/database.db";
+  private String defaultFilePath = "src/main/java/ob/dataway/database/db.sqlite";
   private Random rnd = new Random();
 
   /**
@@ -80,10 +80,12 @@ public class DatabaseManager {
     try {
       User user = this.getUser(userID);
 
+      if(user == null) return false;
+
       // update user online status
       this.statement.executeUpdate("UPDATE users SET online = TRUE WHERE id = '" + userID + "'");
   
-      return user != null;
+      return true;
     }
     catch (SQLException e) {
       log.error("Failed to login user {}.", userID);
