@@ -1,4 +1,4 @@
-package ob.dataway.communication.formats;
+package ob.dataway.communication.enums;
 
 public class ResultCode {
 
