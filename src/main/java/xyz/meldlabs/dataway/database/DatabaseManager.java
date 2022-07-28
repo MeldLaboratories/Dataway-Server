@@ -18,7 +18,7 @@ public class DatabaseManager {
   private Connection connection;
   private Statement statement;
   private int friendCodeLength = 4; //TODO: store friendCodeLength in config file
-  private String defaultFilePath = "src/main/java/ob/dataway/database/db.sqlite";
+  private String defaultFilePath = "src/main/java/xyz/meldlabs/dataway/database/db.sqlite";
   private Random rnd = new Random();
 
   /**
